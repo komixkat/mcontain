@@ -3,7 +3,7 @@
   "id": "mcontain",
   "version": "${version}",
   "name": "mcontain",
-  "description": "Adventure-mode spawn containment and jails for griefers.",
+  "description": "Adventure-mode spawn containment and jails for players.",
   "authors": [
     "komixkat"
   ],
