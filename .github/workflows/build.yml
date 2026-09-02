@@ -1,0 +1,80 @@
+name: Build mcontain
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mc: '1.16.5'
+            java_release: 8
+          - mc: '1.17.1'
+            java_release: 16
+          - mc: '1.19.4'
+            java_release: 17
+          - mc: '1.20.1'
+            java_release: 17
+          - mc: '1.21.7'
+            java_release: 21
+          - mc: '1.21.10'
+            java_release: 21
+          - mc: '26.2'
+            java_release: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 26
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build
+        run: >
+          chmod +x gradlew && ./gradlew build -x test
+          -Pminecraft_version=${{ matrix.mc }}
+          -Pjava_release=${{ matrix.java_release }}
+      - name: Rename jar
+        run: |
+          set -euo pipefail
+          ver=$(grep '^mod_version' gradle.properties | cut -d= -f2)
+          jar=$(find build/libs -maxdepth 1 -name 'mcontain-*.jar' | head -n1)
+          mv "$jar" "build/libs/mcontain-${{ matrix.mc }}-${ver}.jar"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcontain-${{ matrix.mc }}
+          path: build/libs/mcontain-*.jar
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: jars
+          merge-multiple: true
+          pattern: mcontain-*
+      - name: Collect jars
+        run: |
+          mkdir dist
+          find jars -maxdepth 1 -type f -name '*.jar' -exec cp {} dist/ \;
+          ls -la dist
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.jar --generate-notes
