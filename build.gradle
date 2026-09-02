@@ -7,6 +7,13 @@ plugins {
 def nonObfuscated = project.minecraft_version.startsWith('26')
 apply plugin: nonObfuscated ? 'net.fabricmc.fabric-loom' : 'fabric-loom'
 
+loom {
+	mixin {
+		useLegacyMixinAp = true
+		defaultRefmapName = 'mcontain-refmap.json'
+	}
+}
+
 version = project.mod_version
 group = project.maven_group
 

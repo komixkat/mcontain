@@ -12,19 +12,28 @@ import java.util.function.BooleanSupplier;
 @Mixin(MinecraftServer.class)
 public abstract class MinecraftServerMixin {
 
-	@Inject(method = "runServer", at = @At("HEAD"))
-	private void mcontain_onRunServer(CallbackInfo ci) {
-		McontainMod mod = McontainMod.INSTANCE;
-		if (mod != null) {
-			mod.onServerStart(this);
-		}
+	@Inject(method = "run", at = @At("HEAD"), require = 0)
+	private void mcontain_onRun(CallbackInfo ci) {
+		onServerStart();
 	}
 
-	@Inject(method = "tickServer", at = @At("HEAD"))
+	@Inject(method = "runServer", at = @At("HEAD"), require = 0)
+	private void mcontain_onRunServer(CallbackInfo ci) {
+		onServerStart();
+	}
+
+	@Inject(method = "tickServer", at = @At("HEAD"), require = 0)
 	private void mcontain_onTickServer(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
 		McontainMod mod = McontainMod.INSTANCE;
 		if (mod != null) {
 			mod.onTick(this);
+		}
+	}
+
+	private void onServerStart() {
+		McontainMod mod = McontainMod.INSTANCE;
+		if (mod != null) {
+			mod.onServerStart(this);
 		}
 	}
 }
