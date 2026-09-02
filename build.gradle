@@ -31,8 +31,10 @@ dependencies {
 processResources {
 	inputs.property "version", project.version
 	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "minecraft_range", project.findProperty('minecraft_range') ?: project.minecraft_version + '.x'
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version, "minecraft_version": project.minecraft_version
+		expand "version": project.version, "minecraft_version": project.minecraft_version,
+				"minecraft_range": project.findProperty('minecraft_range') ?: project.minecraft_version + '.x'
 	}
 }
 

@@ -6,94 +6,109 @@ on:
     tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '0 5 * * *'
 
 permissions:
   contents: write
 
 jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.set-matrix.outputs.versions }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Discover Minecraft versions
+        id: discover
+        run: python3 .github/scripts/discover_versions.py > versions.json
+      - name: Set build matrix
+        id: set-matrix
+        run: |
+          echo "versions=$(jq -c '.versions' versions.json)" >> "$GITHUB_OUTPUT"
+      - name: Upload version list
+        uses: actions/upload-artifact@v4
+        with:
+          name: versions
+          path: versions.json
+          if-no-files-found: error
+
   build:
+    needs: discover
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - mc: '1.14.4'
-            java_release: 8
-          - mc: '1.15.2'
-            java_release: 8
-          - mc: '1.16.5'
-            java_release: 8
-          - mc: '1.17.1'
-            java_release: 16
-          - mc: '1.18.2'
-            java_release: 17
-          - mc: '1.19.2'
-            java_release: 17
-          - mc: '1.19.4'
-            java_release: 17
-          - mc: '1.20.1'
-            java_release: 17
-          - mc: '1.20.4'
-            java_release: 17
-          - mc: '1.20.6'
-            java_release: 21
-          - mc: '1.21.1'
-            java_release: 21
-          - mc: '1.21.4'
-            java_release: 21
-          - mc: '1.21.7'
-            java_release: 21
-          - mc: '1.21.10'
-            java_release: 21
-          - mc: '1.21.11'
-            java_release: 21
-          - mc: '26.1'
-            java_release: 25
-          - mc: '26.2'
-            java_release: 25
+        include: ${{ fromJson(needs.discover.outputs.versions) }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 26
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build
-        run: >
-          chmod +x gradlew && ./gradlew build -x test
-          -Pminecraft_version=${{ matrix.mc }}
-          -Pjava_release=${{ matrix.java_release }}
+        run: |
+          chmod +x gradlew
+          ./gradlew build -x test \
+            -Pminecraft_version=${{ matrix.mc }} \
+            -Pjava_release=${{ matrix.java_release }} \
+            -Pminecraft_range=${{ matrix.range }}
       - name: Rename jar
         run: |
           set -euo pipefail
-          ver=$(grep '^mod_version' gradle.properties | cut -d= -f2)
-          jar=$(find build/libs -maxdepth 1 -name 'mcontain-*.jar' | head -n1)
-          mv "$jar" "build/libs/mcontain-${{ matrix.mc }}-${ver}.jar"
+          jar=$(find build/libs -maxdepth 1 -name 'mcontain-*.jar' ! -name '*-sources.jar' | head -n1)
+          mkdir -p out
+          mv "$jar" "out/${{ matrix.jar }}"
+          ls -la out
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mcontain-${{ matrix.mc }}
-          path: build/libs/mcontain-*.jar
+          name: ${{ matrix.jar }}
+          path: out/${{ matrix.jar }}
           if-no-files-found: error
 
+  update-readme:
+    needs: discover
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore version list
+        uses: actions/download-artifact@v4
+        with:
+          name: versions
+          path: .
+      - name: Regenerate README table
+        run: python3 .github/scripts/gen_readme.py versions.json
+      - name: Commit if changed
+        run: |
+          if ! git diff --quiet README.md; then
+            git config user.name "mcontain-bot"
+            git config user.email "komixkat@users.noreply.github.com"
+            git add README.md
+            git commit -m "chore: update supported versions table"
+            git push
+          else
+            echo "README up to date"
+          fi
+
   release:
-    needs: build
+    needs: [ build, discover ]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - name: Download jars
+        uses: actions/download-artifact@v4
         with:
-          path: jars
+          path: dist
           merge-multiple: true
           pattern: mcontain-*
-      - name: Collect jars
-        run: |
-          mkdir dist
-          find jars -maxdepth 1 -type f -name '*.jar' -exec cp {} dist/ \;
-          ls -la dist
+      - name: List jars
+        run: find dist -maxdepth 1 -type f -name '*.jar' -exec echo '{}' \; | sort
       - name: Create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

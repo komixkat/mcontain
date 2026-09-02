@@ -7,13 +7,26 @@ GitHub Actions.
 
 ## Supported versions
 
-A jar is built for every release line from Minecraft 1.14.4 through 26.2:
+A single jar works across every sub-version of its Minecraft line. Grab the
+jar matching your server's Minecraft version from the latest release and
+drop it into `mods/`.
 
-1.14.4 · 1.15.2 · 1.16.5 · 1.17.1 · 1.18.2 · 1.19.2 · 1.19.4 · 1.20.1 ·
-1.20.4 · 1.20.6 · 1.21.1 · 1.21.4 · 1.21.7 · 1.21.10 · 1.21.11 · 26.1 · 26.2
+<!-- MC-TABLE:START -->
 
-Grab the jar matching your server's Minecraft version from the latest
-release and drop it into `mods/`.
+| Minecraft | Built from | Java | Download |
+| --- | --- | --- | --- |
+| `1.14.x` | `1.14.4` | 8 | [mcontain-v1-1.14.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-1.14.x.jar) |
+| `1.15.x` | `1.15.2` | 8 | [mcontain-v1-1.15.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-1.15.x.jar) |
+| `1.16.x` | `1.16.5` | 8 | [mcontain-v1-1.16.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-1.16.x.jar) |
+| `1.17.x` | `1.17.1` | 16 | [mcontain-v1-1.17.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-1.17.x.jar) |
+| `1.18.x` | `1.18.2` | 16 | [mcontain-v1-1.18.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-1.18.x.jar) |
+| `1.19.x` | `1.19.4` | 17 | [mcontain-v1-1.19.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-1.19.x.jar) |
+| `1.20.x` | `1.20.6` | 21 | [mcontain-v1-1.20.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-1.20.x.jar) |
+| `1.21.x` | `1.21.11` | 21 | [mcontain-v1-1.21.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-1.21.x.jar) |
+| `26.1.x` | `26.1.2` | 25 | [mcontain-v1-26.1.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-26.1.x.jar) |
+| `26.2.x` | `26.2` | 25 | [mcontain-v1-26.2.x.jar](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v1-26.2.x.jar) |
+
+<!-- MC-TABLE:END -->
 
 ## Features
 
