@@ -6,11 +6,11 @@ GitHub Actions.
 
 Two tools in one:
 
-- **Gate** — encloses the area around world spawn in adventure mode until a
-  player is verified, keeping the spawn safe.
+- **Gate** — prevents unverified players from leaving the spawn area using
+  teleport containment, and forces them into adventure mode so they can't
+  break or place anything while inside.
 - **Jail** — locks a player into an exploration-proof cell, forced into
-  adventure mode, with an optional sentence length. Useful for moderating
-  or for roleplay servers.
+  adventure mode, with an optional sentence length.
 
 ## Supported versions
 
@@ -37,8 +37,10 @@ drop it into `mods/`.
 
 ## Features
 
-- **Gate**: keeps the area around world spawn in adventure mode until a
-  player is verified, and returns unverified players to the spawn area.
+- **Gate**: keeps the region around world spawn configured for the gate. Any
+  player who isn't verified gets teleported back inside and switched to
+  adventure mode, so they can't break or place anything or wander off. The
+  gate radius is configurable.
 - **Jail**: locks a player into an exploration-proof cell, forced into
   adventure mode, with an optional sentence length.
 
