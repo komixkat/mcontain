@@ -8,6 +8,7 @@
     "komixkat"
   ],
   "license": "PolyForm-Noncommercial-1.0.0",
+  "icon": "assets/mcontain/icon.png",
   "environment": "server",
   "entrypoints": {
     "main": [
