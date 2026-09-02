@@ -1,0 +1,64 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}" apply false
+	id 'fabric-loom' version "${loom_version}" apply false
+	id 'maven-publish'
+}
+
+def nonObfuscated = project.minecraft_version.startsWith('26')
+apply plugin: nonObfuscated ? 'net.fabricmc.fabric-loom' : 'fabric-loom'
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	if (!nonObfuscated) {
+		mappings loom.officialMojangMappings()
+		modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	} else {
+		implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	}
+}
+
+processResources {
+	inputs.property "version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version, "minecraft_version": project.minecraft_version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = Integer.parseInt(project.findProperty('java_release') ?: '21')
+}
+
+java {
+	sourceCompatibility = JavaVersion.toVersion(project.findProperty('java_release') ?: '21')
+	targetCompatibility = JavaVersion.toVersion(project.findProperty('java_release') ?: '21')
+	withSourcesJar()
+}
+
+jar {
+	inputs.property "archivesName", project.base.archivesName
+	from("LICENSE") {
+		rename { "${it}_${project.base.archivesName}" }
+	}
+}
+
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
+		}
+	}
+	repositories {}
+}
