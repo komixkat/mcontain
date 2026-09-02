@@ -1,9 +1,16 @@
 # mcontain
 
-Server-side Fabric mod that encloses the world spawn and jail griefers.
-Adventure-mode containment for every Minecraft version that supports
+A server-side Fabric mod built for every Minecraft version that supports
 teleporting and adventure mode. Ships one jar per Minecraft version via
 GitHub Actions.
+
+Two tools in one:
+
+- **Gate** — encloses the area around world spawn in adventure mode until a
+  player is verified, keeping the spawn safe.
+- **Jail** — locks a player into an exploration-proof cell, forced into
+  adventure mode, with an optional sentence length. Useful for moderating
+  or for roleplay servers.
 
 ## Supported versions
 
@@ -32,8 +39,8 @@ drop it into `mods/`.
 
 - **Gate**: keeps the area around world spawn in adventure mode until a
   player is verified, and returns unverified players to the spawn area.
-- **Jail**: locks a griefing player into an exploration-proof cell, forced
-  to adventure mode, with an optional sentence length.
+- **Jail**: locks a player into an exploration-proof cell, forced into
+  adventure mode, with an optional sentence length.
 
 ## Commands
 
