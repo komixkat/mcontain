@@ -45,7 +45,8 @@ public final class McontainConfig {
 	public static McontainConfig load(Path file) {
 		if (Files.isRegularFile(file)) {
 			try {
-				String text = Files.readString(file, StandardCharsets.UTF_8);
+				byte[] bytes = Files.readAllBytes(file);
+				String text = new String(bytes, StandardCharsets.UTF_8);
 				McontainConfig cfg = GSON.fromJson(text, McontainConfig.class);
 				if (cfg != null) {
 					defaults(cfg);

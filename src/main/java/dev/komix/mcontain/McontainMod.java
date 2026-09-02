@@ -2,15 +2,12 @@ package dev.komix.mcontain;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public final class McontainMod implements ModInitializer {
 
 	public static McontainMod INSTANCE;
-	public static final Logger LOGGER = LoggerFactory.getLogger("mcontain");
 
 	public McontainConfig config;
 
@@ -27,7 +24,7 @@ public final class McontainMod implements ModInitializer {
 	}
 
 	public static void log(String message) {
-		LOGGER.info("[mcontain] " + message);
+		System.out.println("[mcontain] " + message);
 	}
 
 	public void onServerStart(Object server) {
