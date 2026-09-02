@@ -57,7 +57,7 @@ def main():
             "mc": mc,
             "line": line,
             "range": line + ".x",
-            "jar": "mcontain-v1-" + line + ".x.jar",
+            "jar": "mcontain-v4-" + line + ".x.jar",
             "java_release": java_for(mc),
         })
 
