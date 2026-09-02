@@ -20,6 +20,9 @@ public final class McontainCommands {
 		Object commands = Compat.invoke(server, "getCommands");
 		CommandDispatcher dispatcher = (CommandDispatcher) Compat.invoke(commands, "getDispatcher");
 		if (dispatcher == null) {
+			dispatcher = (CommandDispatcher) Compat.invoke(commands, "getCommands");
+		}
+		if (dispatcher == null) {
 			return;
 		}
 
