@@ -11,12 +11,8 @@ import java.nio.file.Path;
 public final class McontainConfig {
 
 	public static final class Gate {
-		public boolean enabled = false;
-		public int radius = 64;
-		public boolean hasPos = false;
-		public double x;
-		public double y;
-		public double z;
+		public boolean enabled = true;
+		public int radius = 16;
 		public String world = "minecraft:overworld";
 	}
 
@@ -25,7 +21,7 @@ public final class McontainConfig {
 		public double x;
 		public double y;
 		public double z;
-		public int radius = 8;
+		public int radius = 2;
 	}
 
 	public static final class Sentence {
@@ -37,7 +33,7 @@ public final class McontainConfig {
 	public java.util.Map<String, Jail> jails = new java.util.LinkedHashMap<>();
 	public java.util.Map<String, Sentence> jailed = new java.util.HashMap<>();
 	public java.util.List<String> verified = new java.util.ArrayList<>();
-	public int default_radius = 8;
+	public int default_radius = 2;
 	public int tick_interval = 20;
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -78,10 +74,10 @@ public final class McontainConfig {
 			cfg.tick_interval = 20;
 		}
 		if (cfg.gate.radius <= 0) {
-			cfg.gate.radius = 64;
+			cfg.gate.radius = 16;
 		}
 		if (cfg.default_radius <= 0) {
-			cfg.default_radius = 8;
+			cfg.default_radius = 2;
 		}
 	}
 

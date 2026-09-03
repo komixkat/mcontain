@@ -62,7 +62,7 @@ public final class McontainMod implements ModInitializer {
 	private void enforce(Object server) {
 		Object overworld = Compat.overworld(server);
 		List<Object> players = Compat.onlinePlayers(server);
-		double[] gateSpawn = gateSpawn(overworld);
+		double[] worldSpawn = Compat.worldSpawn(overworld);
 		long now = System.currentTimeMillis();
 		boolean changed = false;
 		for (Object player : players) {
@@ -92,37 +92,29 @@ public final class McontainMod implements ModInitializer {
 				}
 				continue;
 			}
-			if (!config.gate.enabled || gateSpawn == null) {
+			if (!config.gate.enabled || worldSpawn == null) {
+				if ("ADVENTURE".equals(Compat.currentGameMode(player))) {
+					Compat.setGameMode(player, "SURVIVAL");
+				}
 				continue;
 			}
 			boolean verified = config.verified.contains(Compat.nameOf(player).toLowerCase(java.util.Locale.ROOT));
-			if (Compat.isOperator(player) && !verified) {
+			if (verified) {
+				if ("ADVENTURE".equals(Compat.currentGameMode(player))) {
+					Compat.setGameMode(player, "SURVIVAL");
+				}
 				continue;
 			}
-			if (!verified) {
-				if (!"ADVENTURE".equals(Compat.currentGameMode(player))) {
-					Compat.setGameMode(player, "ADVENTURE");
-				}
-				if (!Compat.sameLevel(player, overworld) || !insideGate(player, gateSpawn[0], gateSpawn[1], gateSpawn[2], config.gate.radius)) {
-					Compat.teleportPlayer(player, overworld, gateSpawn[0], gateSpawn[1], gateSpawn[2]);
-				}
-			} else if ("ADVENTURE".equals(Compat.currentGameMode(player)) && insideGate(player, gateSpawn[0], gateSpawn[1], gateSpawn[2], config.gate.radius)) {
-				Compat.setGameMode(player, "SURVIVAL");
+			if (!"ADVENTURE".equals(Compat.currentGameMode(player))) {
+				Compat.setGameMode(player, "ADVENTURE");
+			}
+			if (!Compat.sameLevel(player, overworld) || !inside(player, worldSpawn[0], worldSpawn[1], worldSpawn[2], config.gate.radius)) {
+				Compat.teleportPlayer(player, overworld, worldSpawn[0], worldSpawn[1], worldSpawn[2]);
 			}
 		}
 		if (changed) {
 			saveConfig();
 		}
-	}
-
-	private double[] gateSpawn(Object overworld) {
-		if (!config.gate.enabled) {
-			return null;
-		}
-		if (config.gate.hasPos) {
-			return new double[] { config.gate.x, config.gate.y, config.gate.z };
-		}
-		return Compat.worldSpawn(overworld);
 	}
 
 	private static boolean inside(Object player, double x, double y, double z, int radius) {

@@ -163,9 +163,28 @@ public final class Compat {
 	}
 
 	public static String nameOf(Object player) {
+		Object profile = invoke(player, "getGameProfile");
+		if (profile != null) {
+			Object name = invoke(profile, "getName");
+			if (name instanceof String) {
+				return (String) name;
+			}
+		}
 		Object component = invoke(player, "getName");
-		String name = (String) invoke(component, "getString");
-		return name == null ? String.valueOf(player) : name;
+		if (component != null) {
+			Object name = invoke(component, "getString");
+			if (name instanceof String) {
+				String s = (String) name;
+				if (!s.startsWith("ServerPlayer[")) {
+					return s;
+				}
+			}
+		}
+		Object uuid = invoke(player, "getUUID");
+		if (uuid != null) {
+			return uuid.toString();
+		}
+		return String.valueOf(player);
 	}
 
 	public static String uuidOf(Object player) {
@@ -177,13 +196,20 @@ public final class Compat {
 		return uuidString == null ? "" : uuidString.toString();
 	}
 
-	public static boolean isOperator(Object player) {
-		Boolean p = (Boolean) invoke(player, "hasPermissions", 4);
-		if (Boolean.TRUE.equals(p)) {
-			return true;
+	public static boolean isOperator(Object server, Object player) {
+		Object profile = invoke(player, "getGameProfile");
+		if (profile == null) {
+			return false;
 		}
-		Object level = invoke(player, "getPermissionLevel");
-		return level instanceof Integer && (Integer) level >= 2;
+		Object playerList = invoke(server, "getPlayerList");
+		if (playerList == null) {
+			return false;
+		}
+		Object isOp = invoke(playerList, "isOp", profile);
+		if (isOp instanceof Boolean) {
+			return (Boolean) isOp;
+		}
+		return false;
 	}
 
 	public static double xOf(Object player) {

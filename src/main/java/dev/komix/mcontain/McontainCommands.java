@@ -28,35 +28,38 @@ public final class McontainCommands {
 		LiteralArgumentBuilder<CommandSourceStack> root = LiteralArgumentBuilder.<CommandSourceStack>literal("mcontain")
 				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
 
-		root.then(LiteralArgumentBuilder.<CommandSourceStack>literal("gate")
-				.then(LiteralArgumentBuilder.<CommandSourceStack>literal("set")
-						.executes(ctx -> gateSet(mod, ctx, 0))
-						.then(RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("radius", IntegerArgumentType.integer(1, 128))
-								.executes(ctx -> gateSet(mod, ctx, IntegerArgumentType.getInteger(ctx, "radius")))))
-				.then(LiteralArgumentBuilder.<CommandSourceStack>literal("unset")
-						.executes(ctx -> gateUnset(mod, ctx)))
-				.then(LiteralArgumentBuilder.<CommandSourceStack>literal("verify")
-						.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
-								.executes(ctx -> verify(mod, ctx, true))))
-				.then(LiteralArgumentBuilder.<CommandSourceStack>literal("unverify")
-						.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
-								.executes(ctx -> verify(mod, ctx, false)))));
+		LiteralArgumentBuilder<CommandSourceStack> gate = LiteralArgumentBuilder.<CommandSourceStack>literal("gate")
+				.executes(ctx -> gateSet(mod, ctx, 16))
+				.then(RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("radius", IntegerArgumentType.integer(1, 128))
+						.executes(ctx -> gateSet(mod, ctx, IntegerArgumentType.getInteger(ctx, "radius"))));
+		gate.then(LiteralArgumentBuilder.<CommandSourceStack>literal("ungate")
+				.executes(ctx -> gateUnset(mod, ctx)));
+		gate.then(LiteralArgumentBuilder.<CommandSourceStack>literal("verify")
+				.executes(ctx -> verify(mod, ctx, true, null))
+				.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
+						.executes(ctx -> verify(mod, ctx, true, StringArgumentType.getString(ctx, "player")))));
+		gate.then(LiteralArgumentBuilder.<CommandSourceStack>literal("unverify")
+				.executes(ctx -> verify(mod, ctx, false, null))
+				.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
+						.executes(ctx -> verify(mod, ctx, false, StringArgumentType.getString(ctx, "player")))));
+		root.then(gate);
 
-		root.then(LiteralArgumentBuilder.<CommandSourceStack>literal("jail")
-				.then(LiteralArgumentBuilder.<CommandSourceStack>literal("set")
-						.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("name", StringArgumentType.word())
-								.executes(ctx -> jailSet(mod, ctx, mod.config.default_radius))
-								.then(RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("radius", IntegerArgumentType.integer(1, 128))
-										.executes(ctx -> jailSet(mod, ctx, IntegerArgumentType.getInteger(ctx, "radius"))))))
-				.then(LiteralArgumentBuilder.<CommandSourceStack>literal("list")
-						.executes(ctx -> jailList(mod, ctx)))
-				.then(LiteralArgumentBuilder.<CommandSourceStack>literal("clear")
-						.executes(ctx -> jailClear(mod, ctx)))
+		LiteralArgumentBuilder<CommandSourceStack> jail = LiteralArgumentBuilder.<CommandSourceStack>literal("jail");
+		jail.then(LiteralArgumentBuilder.<CommandSourceStack>literal("save")
 				.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("name", StringArgumentType.word())
-						.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
-								.executes(ctx -> jail(mod, ctx, 0))
-								.then(RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("minutes", IntegerArgumentType.integer(1, 525600))
-										.executes(ctx -> jail(mod, ctx, IntegerArgumentType.getInteger(ctx, "minutes")))))));
+						.executes(ctx -> jailSet(mod, ctx, mod.config.default_radius))
+						.then(RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("radius", IntegerArgumentType.integer(1, 128))
+								.executes(ctx -> jailSet(mod, ctx, IntegerArgumentType.getInteger(ctx, "radius"))))));
+		jail.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("name", StringArgumentType.word())
+				.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
+						.executes(ctx -> jail(mod, ctx, 0))
+						.then(RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("minutes", IntegerArgumentType.integer(1, 525600))
+								.executes(ctx -> jail(mod, ctx, IntegerArgumentType.getInteger(ctx, "minutes"))))));
+		jail.then(LiteralArgumentBuilder.<CommandSourceStack>literal("list")
+				.executes(ctx -> jailList(mod, ctx)));
+		jail.then(LiteralArgumentBuilder.<CommandSourceStack>literal("clear")
+				.executes(ctx -> jailClear(mod, ctx)));
+		root.then(jail);
 
 		root.then(LiteralArgumentBuilder.<CommandSourceStack>literal("unjail")
 				.then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("player", StringArgumentType.word())
@@ -70,37 +73,36 @@ public final class McontainCommands {
 	}
 
 	private static int gateSet(McontainMod mod, CommandContext<CommandSourceStack> ctx, int radius) {
+		mod.config.gate.enabled = true;
+		mod.config.gate.radius = radius;
+		mod.saveConfig();
 		Object source = ctx.getSource();
 		Object player = Compat.commandPlayer(source);
-		if (player == null) {
-			McontainMod.log("gate set requires a player");
-			return -1;
+		if (player != null) {
+			Compat.send(player, "Gate enabled at world spawn with radius " + radius);
 		}
-		mod.config.gate.x = Compat.xOf(player);
-		mod.config.gate.y = Compat.yOf(player);
-		mod.config.gate.z = Compat.zOf(player);
-		mod.config.gate.hasPos = true;
-		mod.config.gate.enabled = true;
-		if (radius > 0) {
-			mod.config.gate.radius = radius;
-		}
-		mod.saveConfig();
-		Compat.send(player, "Gate set at " + Math.round(mod.config.gate.x) + ", "
-				+ Math.round(mod.config.gate.y) + ", " + Math.round(mod.config.gate.z)
-				+ " with radius " + mod.config.gate.radius);
 		return 1;
 	}
 
 	private static int gateUnset(McontainMod mod, CommandContext<CommandSourceStack> ctx) {
-		mod.config.gate.hasPos = false;
 		mod.config.gate.enabled = false;
 		mod.saveConfig();
-		feedback(mod, ctx.getSource(), "Gate disabled. It will follow world spawn when re-enabled.");
+		feedback(mod, ctx.getSource(), "Gate disabled. All players restored to survival.");
 		return 1;
 	}
 
-	private static int verify(McontainMod mod, CommandContext<CommandSourceStack> ctx, boolean add) {
-		String name = StringArgumentType.getString(ctx, "player").toLowerCase(Locale.ROOT);
+	private static int verify(McontainMod mod, CommandContext<CommandSourceStack> ctx, boolean add, String targetName) {
+		String name;
+		if (targetName != null) {
+			name = targetName.toLowerCase(Locale.ROOT);
+		} else {
+			Object source = ctx.getSource();
+			Object player = Compat.commandPlayer(source);
+			if (player == null) {
+				return -1;
+			}
+			name = Compat.nameOf(player).toLowerCase(Locale.ROOT);
+		}
 		boolean changed;
 		if (add) {
 			changed = !mod.config.verified.contains(name) && mod.config.verified.add(name);
@@ -118,7 +120,7 @@ public final class McontainCommands {
 		Object source = ctx.getSource();
 		Object player = Compat.commandPlayer(source);
 		if (player == null) {
-			McontainMod.log("jail set requires a player");
+			McontainMod.log("jail save requires a player");
 			return -1;
 		}
 		String name = StringArgumentType.getString(ctx, "name").toLowerCase(Locale.ROOT);
@@ -228,12 +230,9 @@ public final class McontainCommands {
 			return -1;
 		}
 		String gateState = mod.config.gate.enabled
-				? "enabled" + (mod.config.gate.hasPos
-						? " at " + Math.round(mod.config.gate.x) + ", " + Math.round(mod.config.gate.y) + ", "
-							+ Math.round(mod.config.gate.z)
-						: " at world spawn")
+				? "enabled at world spawn, radius " + mod.config.gate.radius
 				: "disabled";
-		Compat.send(player, "Gate: " + gateState + ", radius " + mod.config.gate.radius);
+		Compat.send(player, "Gate: " + gateState);
 		Compat.send(player, "Verified: " + mod.config.verified.size() + ", jailed: " + mod.config.jailed.size());
 		return 1;
 	}
