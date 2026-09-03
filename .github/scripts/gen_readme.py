@@ -15,12 +15,12 @@ END = "<!-- MC-TABLE:END -->"
 
 
 def block(versions):
-    lines = [START, "", "| Minecraft | Built from | Java | Download |", "| --- | --- | --- | --- |"]
+    lines = [START, "", "| Version | Java | Download |", "| --- | --- | --- |"]
     for v in versions:
         url = f"https://github.com/{REPO}/releases/latest/download/{v['jar']}"
         display = v['jar'].replace('.jar', '')
         lines.append(
-            f"| `{v['range']}` | `{v['mc']}` | {v['java_release']} | [{display}]({url}) |"
+            f"| `{v['mc']}` | {v['java_release']} | [{display}]({url}) |"
         )
     lines.append("")
     lines.append(END)

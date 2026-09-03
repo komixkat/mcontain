@@ -1,7 +1,7 @@
 # mcontain
 
 A server-side Fabric mod for modern, non-obfuscated Minecraft versions (the
-year-based `26.x` lines). Ships one jar per version line via GitHub Actions.
+year-based lines). Ships one jar per Minecraft version via GitHub Actions.
 
 Two tools in one:
 
@@ -10,21 +10,6 @@ Two tools in one:
   break or place anything while inside.
 - **Jail** — locks a player into an exploration-proof cell, forced into
   adventure mode, with an optional sentence length.
-
-## Supported versions
-
-A single jar works across every sub-version of its Minecraft line. Grab the
-jar matching your server's Minecraft version from the latest release and
-drop it into `mods/`.
-
-<!-- MC-TABLE:START -->
-
-| Minecraft | Built from | Java | Download |
-| --- | --- | --- | --- |
-| `26.1.x` | `26.1.2` | 25 | [mcontain-v4-26.1.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-26.1.x.jar) |
-| `26.2.x` | `26.2` | 25 | [mcontain-v4-26.2.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-26.2.x.jar) |
-
-<!-- MC-TABLE:END -->
 
 ## Features
 
@@ -41,21 +26,37 @@ All commands require operator permission.
 
 | Command | Description |
 | --- | --- |
-| `/mcontain gate set [radius]` | Set the gate region around world spawn |
-| `/mcontain gate unset` | Disable the gate |
-| `/mcontain gate verify <player>` | Let a player leave the spawn region |
-| `/mcontain gate unverify <player>` | Revoke a player's gate pass |
-| `/mcontain jail set <name> [radius]` | Save a jail cell at your position |
+| `/mcontain gate [radius]` | Enable gate at world spawn (default radius 16) |
+| `/mcontain gate disable` | Disable the gate |
+| `/mcontain gate verify [player]` | Verify a player (or self) to leave spawn |
+| `/mcontain gate unverify [player]` | Revoke a player's verification |
+| `/mcontain jail save <name> [radius]` | Save a jail cell at your position |
 | `/mcontain jail <name> <player> [minutes]` | Send a player to a jail cell |
-| `/mcontain unjail <player>` | Release a player |
+| `/mcontain unjail <player>` | Release a player from jail |
 | `/mcontain jail list` | List jail cells and current sentences |
-| `/mcontain jail clear` | Release everyone and forget all cells |
+| `/mcontain jail clear` | Release everyone and remove all cells |
 | `/mcontain reload` | Reload `config/mcontain.json` |
 | `/mcontain status` | Show gate and jail state |
 
 ## Configuration
 
 Config is written to `config/mcontain.json` on first run.
+
+## Supported versions
+
+One jar per exact Minecraft release. Grab the jar matching your server's
+exact Minecraft version from the latest release and drop it into `mods/`.
+
+<!-- MC-TABLE:START -->
+
+| Version | Java | Download |
+| --- | --- | --- |
+| `26.1` | 25 | [mcontain-v4-26.1](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-26.1.jar) |
+| `26.1.1` | 25 | [mcontain-v4-26.1.1](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-26.1.1.jar) |
+| `26.1.2` | 25 | [mcontain-v4-26.1.2](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-26.1.2.jar) |
+| `26.2` | 25 | [mcontain-v4-26.2](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-26.2.jar) |
+
+<!-- MC-TABLE:END -->
 
 ## License
 

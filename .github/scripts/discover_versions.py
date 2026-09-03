@@ -2,10 +2,9 @@
 """Discover the Minecraft versions supported by mcontain.
 
 Only targets modern, non-obfuscated Minecraft lines (the "YY.N" year-based
-lines). Picks the final release of each line and reports the Java release
-needed to build it. Because these versions are non-obfuscated, a single jar
-built against the final release of a line works across every sub-version of
-that line without remapping, so we ship one jar per minor line.
+lines). Picks EVERY release of each line and reports the Java release
+needed to build it. Because these versions are non-obfuscated but have
+per-version bytecode differences, we ship one jar per EXACT release version.
 
 Used to auto-build for new Minecraft versions as Mojang publishes them.
 """
@@ -17,7 +16,7 @@ MANIFEST = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
 
 # Auto-adopt any year-based line: two-digit year, single-digit minor (e.g. 26.1, 27.1, 28.1)
 # Pattern: ^YY.N.N or ^YY.N where YY=two-digit year, N=minor line number
-YEAR_LINE_PATTERN = re.compile(r'^(\d{2})\.(\d+)(?:\.\d+)?$')
+YEAR_LINE_PATTERN = re.compile(r'^(\d{2})\.(\d+)(?:\.(\d+))?$')
 
 
 def fetch(url):
@@ -45,21 +44,14 @@ def main():
         if m:
             supported.append(v)
 
-    line_of = {}
-    for v in supported:
-        parts = v.split(".")
-        line = parts[0] + "." + parts[1]
-        if line not in line_of or sort_key(v) > sort_key(line_of[line]):
-            line_of[line] = v
-
+    # One jar per exact release version
     versions = []
-    for line in sorted(line_of, key=sort_key):
-        mc = line_of[line]
+    for mc in sorted(supported, key=sort_key):
         versions.append({
             "mc": mc,
-            "line": line,
-            "range": line + ".x",
-            "jar": "mcontain-v4-" + line + ".x.jar",
+            "line": mc,  # exact version
+            "range": mc,  # exact version for fabric.mod.json depends
+            "jar": "mcontain-v4-" + mc + ".jar",
             "java_release": java_for(mc),
         })
 
