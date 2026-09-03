@@ -98,7 +98,7 @@ public final class McontainMod implements ModInitializer {
 				}
 				continue;
 			}
-			boolean verified = config.verified.contains(Compat.nameOf(player).toLowerCase(java.util.Locale.ROOT));
+			boolean verified = config.verified.contains(Compat.uuidOf(player).toLowerCase(java.util.Locale.ROOT));
 			if (verified) {
 				if ("ADVENTURE".equals(Compat.currentGameMode(player))) {
 					Compat.setGameMode(player, "SURVIVAL");

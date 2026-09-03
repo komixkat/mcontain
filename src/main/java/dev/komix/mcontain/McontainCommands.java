@@ -32,7 +32,7 @@ public final class McontainCommands {
 				.executes(ctx -> gateSet(mod, ctx, 16))
 				.then(RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("radius", IntegerArgumentType.integer(1, 128))
 						.executes(ctx -> gateSet(mod, ctx, IntegerArgumentType.getInteger(ctx, "radius"))));
-		gate.then(LiteralArgumentBuilder.<CommandSourceStack>literal("ungate")
+		gate.then(LiteralArgumentBuilder.<CommandSourceStack>literal("disable")
 				.executes(ctx -> gateUnset(mod, ctx)));
 		gate.then(LiteralArgumentBuilder.<CommandSourceStack>literal("verify")
 				.executes(ctx -> verify(mod, ctx, true, null))
@@ -92,27 +92,32 @@ public final class McontainCommands {
 	}
 
 	private static int verify(McontainMod mod, CommandContext<CommandSourceStack> ctx, boolean add, String targetName) {
-		String name;
+		Object source = ctx.getSource();
+		Object targetPlayer;
 		if (targetName != null) {
-			name = targetName.toLowerCase(Locale.ROOT);
-		} else {
-			Object source = ctx.getSource();
-			Object player = Compat.commandPlayer(source);
-			if (player == null) {
+			Object server = Compat.invoke(source, "getServer");
+			targetPlayer = findPlayer(server, targetName);
+			if (targetPlayer == null) {
+				feedback(mod, source, "Player not found: " + targetName);
 				return -1;
 			}
-			name = Compat.nameOf(player).toLowerCase(Locale.ROOT);
+		} else {
+			targetPlayer = Compat.commandPlayer(source);
+			if (targetPlayer == null) {
+				return -1;
+			}
 		}
+		String uuid = Compat.uuidOf(targetPlayer).toLowerCase(Locale.ROOT);
 		boolean changed;
 		if (add) {
-			changed = !mod.config.verified.contains(name) && mod.config.verified.add(name);
+			changed = !mod.config.verified.contains(uuid) && mod.config.verified.add(uuid);
 		} else {
-			changed = mod.config.verified.remove(name);
+			changed = mod.config.verified.remove(uuid);
 		}
 		if (changed) {
 			mod.saveConfig();
 		}
-		feedback(mod, ctx.getSource(), (add ? "Verified " : "Unverified ") + name);
+		feedback(mod, source, (add ? "Verified " : "Unverified ") + Compat.displayName(targetPlayer));
 		return 1;
 	}
 
@@ -160,7 +165,7 @@ public final class McontainCommands {
 		Compat.send(target, minutes > 0
 				? "You have been jailed in '" + jailName + "' for " + minutes + " minutes."
 				: "You have been jailed in '" + jailName + "'.");
-		feedback(mod, ctx.getSource(), "Jailed " + Compat.nameOf(target) + " in '" + jailName + "'");
+		feedback(mod, ctx.getSource(), "Jailed " + Compat.displayName(target) + " in '" + jailName + "'");
 		return 1;
 	}
 
@@ -175,7 +180,7 @@ public final class McontainCommands {
 			Compat.send(target, "You have been unjailed.");
 			mod.saveConfig();
 		}
-		feedback(mod, ctx.getSource(), removed ? "Unjailed." : "No current sentence for that player");
+		feedback(mod, ctx.getSource(), removed ? "Unjailed " + Compat.displayName(target) + "." : "No current sentence for that player");
 		return 1;
 	}
 

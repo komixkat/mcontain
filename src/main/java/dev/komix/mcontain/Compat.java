@@ -196,6 +196,23 @@ public final class Compat {
 		return uuidString == null ? "" : uuidString.toString();
 	}
 
+	private static final java.util.regex.Pattern UUID_PATTERN = java.util.regex.Pattern.compile(
+			"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
+	public static String displayName(Object player) {
+		Object profile = invoke(player, "getGameProfile");
+		if (profile != null) {
+			Object name = invoke(profile, "getName");
+			if (name instanceof String) {
+				String s = (String) name;
+				if (!s.isEmpty() && !UUID_PATTERN.matcher(s).matches()) {
+					return s;
+				}
+			}
+		}
+		return uuidOf(player);
+	}
+
 	public static boolean isOperator(Object server, Object player) {
 		Object profile = invoke(player, "getGameProfile");
 		if (profile == null) {

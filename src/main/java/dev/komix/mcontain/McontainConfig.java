@@ -37,6 +37,8 @@ public final class McontainConfig {
 	public int tick_interval = 20;
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+	private static final java.util.regex.Pattern UUID_PATTERN = java.util.regex.Pattern.compile(
+			"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
 	public static McontainConfig load(Path file) {
 		if (Files.isRegularFile(file)) {
@@ -46,6 +48,10 @@ public final class McontainConfig {
 				McontainConfig cfg = GSON.fromJson(text, McontainConfig.class);
 				if (cfg != null) {
 					defaults(cfg);
+					// migrate: remove stale non-UUID verified entries
+					if (cfg.verified != null) {
+						cfg.verified.removeIf(v -> v == null || v.isEmpty() || !UUID_PATTERN.matcher(v).matches());
+					}
 					return cfg;
 				}
 			} catch (Exception e) {
