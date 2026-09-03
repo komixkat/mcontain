@@ -23,7 +23,7 @@ public final class Compat {
 		}
 	}
 
-	static Object invoke(Object target, String name, Object... args) {
+	public static Object invoke(Object target, String name, Object... args) {
 		if (target == null) {
 			return null;
 		}
@@ -68,7 +68,7 @@ public final class Compat {
 		}
 	}
 
-	private static Object field(Object target, String name) {
+	public static Object field(Object target, String name) {
 		if (target == null) {
 			return null;
 		}
@@ -82,6 +82,53 @@ public final class Compat {
 			}
 		}
 		return null;
+	}
+
+	public static Object findDispatcher(Object server) {
+		if (server == null) {
+			return null;
+		}
+		Object direct = field(server, "dispatcher");
+		if (direct instanceof com.mojang.brigadier.CommandDispatcher) {
+			return direct;
+		}
+		Object commands = invoke(server, "getCommands");
+		Object dispatcher = dispatcherOf(commands);
+		if (dispatcher != null) {
+			return dispatcher;
+		}
+		commands = field(server, "commands");
+		dispatcher = dispatcherOf(commands);
+		if (dispatcher != null) {
+			return dispatcher;
+		}
+		for (Class<?> c = server.getClass(); c != null && c != Object.class; c = c.getSuperclass()) {
+			for (Field f : c.getDeclaredFields()) {
+				try {
+					f.setAccessible(true);
+					Object v = f.get(server);
+					dispatcher = dispatcherOf(v);
+					if (dispatcher != null) {
+						return dispatcher;
+					}
+				} catch (Throwable t) {
+					// continue
+				}
+			}
+		}
+		return null;
+	}
+
+	public static Object dispatcherOf(Object commands) {
+		if (commands == null) {
+			return null;
+		}
+		Object dispatcher = invoke(commands, "getDispatcher");
+		if (dispatcher instanceof com.mojang.brigadier.CommandDispatcher) {
+			return dispatcher;
+		}
+		dispatcher = field(commands, "dispatcher");
+		return dispatcher instanceof com.mojang.brigadier.CommandDispatcher ? dispatcher : null;
 	}
 
 	private static Object staticField(String className, String name) {

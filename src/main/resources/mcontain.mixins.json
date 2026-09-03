@@ -4,7 +4,8 @@
   "package": "dev.komix.mcontain.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MinecraftServerMixin"
+    "MinecraftServerMixin",
+    "ServerPlayerListMixin"
   ],
   "injectors": {
     "defaultRequire": 1

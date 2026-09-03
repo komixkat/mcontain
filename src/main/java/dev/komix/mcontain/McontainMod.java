@@ -13,6 +13,7 @@ public final class McontainMod implements ModInitializer {
 
 	private java.nio.file.Path configPath;
 	private int counter;
+	private boolean commandsRegistered;
 
 	@Override
 	public void onInitialize() {
@@ -28,8 +29,19 @@ public final class McontainMod implements ModInitializer {
 	}
 
 	public void onServerStart(Object server) {
-		McontainCommands.register(this, server);
 		log("active on this server");
+	}
+
+	public void tryRegisterCommands(Object server) {
+		if (commandsRegistered) {
+			return;
+		}
+		if (Compat.findDispatcher(server) == null) {
+			return;
+		}
+		McontainCommands.register(this, server);
+		commandsRegistered = true;
+		log("commands registered");
 	}
 
 	public void onTick(Object server) {

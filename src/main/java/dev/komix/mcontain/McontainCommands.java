@@ -17,14 +17,12 @@ public final class McontainCommands {
 	}
 
 	public static void register(McontainMod mod, Object server) {
-		Object commands = Compat.invoke(server, "getCommands");
-		CommandDispatcher dispatcher = (CommandDispatcher) Compat.invoke(commands, "getDispatcher");
+		CommandDispatcher dispatcher = (CommandDispatcher) Compat.findDispatcher(server);
 		if (dispatcher == null) {
-			dispatcher = (CommandDispatcher) Compat.invoke(commands, "getCommands");
-		}
-		if (dispatcher == null) {
+			McontainMod.log("dispatcher not found yet, will retry");
 			return;
 		}
+		McontainMod.log("dispatcher found: " + dispatcher.getClass().getName());
 
 		LiteralArgumentBuilder<CommandSourceStack> root = LiteralArgumentBuilder.<CommandSourceStack>literal("mcontain")
 				.requires(src -> Compat.hasPermission(src));

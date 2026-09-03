@@ -27,6 +27,7 @@ public abstract class MinecraftServerMixin {
 		McontainMod mod = McontainMod.INSTANCE;
 		if (mod != null) {
 			mod.onTick(this);
+			mod.tryRegisterCommands(this);
 		}
 	}
 
