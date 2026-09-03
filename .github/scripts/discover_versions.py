@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Discover the Minecraft versions supported by mcontain.
 
-Only targets modern, non-obfuscated Minecraft lines (the "26." year-based
+Only targets modern, non-obfuscated Minecraft lines (the "YY.N" year-based
 lines). Picks the final release of each line and reports the Java release
 needed to build it. Because these versions are non-obfuscated, a single jar
 built against the final release of a line works across every sub-version of
@@ -10,11 +10,14 @@ that line without remapping, so we ship one jar per minor line.
 Used to auto-build for new Minecraft versions as Mojang publishes them.
 """
 import json
+import re
 import urllib.request
 
 MANIFEST = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
 
-SUPPORTED_PREFIX = ("26.",)
+# Auto-adopt any year-based line: two-digit year, single-digit minor (e.g. 26.1, 27.1, 28.1)
+# Pattern: ^YY.N.N or ^YY.N where YY=two-digit year, N=minor line number
+YEAR_LINE_PATTERN = re.compile(r'^(\d{2})\.(\d+)(?:\.\d+)?$')
 
 
 def fetch(url):
@@ -34,7 +37,13 @@ def sort_key(version):
 def main():
     manifest = fetch(MANIFEST)
     releases = [v["id"] for v in manifest["versions"] if v["type"] == "release"]
-    supported = [v for v in releases if v.startswith(SUPPORTED_PREFIX)]
+
+    # Match any year-based line (YY.N or YY.N.N)
+    supported = []
+    for v in releases:
+        m = YEAR_LINE_PATTERN.match(v)
+        if m:
+            supported.append(v)
 
     line_of = {}
     for v in supported:

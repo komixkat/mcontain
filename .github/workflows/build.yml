@@ -113,3 +113,46 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release create "$GITHUB_REF_NAME" dist/*.jar --generate-notes
+
+  release-auto:
+    needs: [ build, discover ]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download jars
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+          pattern: mcontain-*
+      - name: List jars
+        run: find dist -maxdepth 1 -type f -name '*.jar' -exec echo '{}' \; | sort
+      - name: Get current release assets
+        id: current
+        run: |
+          assets=$(gh release view v4 --json assets --jq '.assets[].name' 2>/dev/null || echo "")
+          echo "assets<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$assets" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+      - name: Check if release needs update
+        id: check
+        run: |
+          current_assets="${{ steps.current.outputs.assets }}"
+          new_assets=$(find dist -maxdepth 1 -type f -name '*.jar' -printf '%f\n' | sort)
+          if [ "$current_assets" = "$new_assets" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Release v4 is up to date"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Release v4 needs update"
+            echo "Current: $current_assets"
+            echo "New:     $new_assets"
+          fi
+      - name: Update v4 release
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete v4 --yes 2>/dev/null || true
+          gh release create v4 dist/*.jar --generate-notes
