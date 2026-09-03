@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerList.class)
 public abstract class ServerPlayerListMixin {
 
-	@Inject(method = "onPlayerJoin", at = @At("HEAD"), require = 0)
-	private void onPlayerJoin(Object player, CallbackInfo ci) {
+	@Inject(method = {"placeNewPlayer", "onPlayerJoin"}, at = @At("HEAD"), require = 0)
+	private void onPlayerJoining(CallbackInfo ci) {
 		McontainMod mod = McontainMod.INSTANCE;
 		if (mod != null) {
 			Object server = Compat.invoke(this, "getServer");

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Discover the Minecraft versions supported by mcontain.
 
-Picks the final release of every minor line from 1.14 upward, and reports
-the Java release needed to build each. A single jar built against the final
-release of a line works across every sub-version of that line (the mod is
-server-side and uses reflection), so we ship one jar per minor line.
+Only targets modern, non-obfuscated Minecraft lines (the "26." year-based
+lines). Picks the final release of each line and reports the Java release
+needed to build it. Because these versions are non-obfuscated, a single jar
+built against the final release of a line works across every sub-version of
+that line without remapping, so we ship one jar per minor line.
 
 Used to auto-build for new Minecraft versions as Mojang publishes them.
 """
@@ -13,7 +14,7 @@ import urllib.request
 
 MANIFEST = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
 
-SUPPORTED_PREFIX = ("1.14", "1.15", "1.16", "1.17", "1.18", "1.19", "1.20", "1.21", "26.")
+SUPPORTED_PREFIX = ("26.",)
 
 
 def fetch(url):
@@ -23,15 +24,7 @@ def fetch(url):
 
 
 def java_for(version):
-    if version.startswith("26."):
-        return 25
-    if version.startswith(("1.21", "1.20.6")):
-        return 21
-    if version.startswith(("1.19", "1.20")):
-        return 17
-    if version.startswith("1.17") or version.startswith("1.18"):
-        return 16
-    return 8
+    return 25
 
 
 def sort_key(version):

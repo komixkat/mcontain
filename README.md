@@ -1,8 +1,7 @@
 # mcontain
 
-A server-side Fabric mod built for every Minecraft version that supports
-teleporting and adventure mode. Ships one jar per Minecraft version via
-GitHub Actions.
+A server-side Fabric mod for modern, non-obfuscated Minecraft versions (the
+year-based `26.x` lines). Ships one jar per version line via GitHub Actions.
 
 Two tools in one:
 
@@ -22,14 +21,6 @@ drop it into `mods/`.
 
 | Minecraft | Built from | Java | Download |
 | --- | --- | --- | --- |
-| `1.14.x` | `1.14.4` | 8 | [mcontain-v4-1.14.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-1.14.x.jar) |
-| `1.15.x` | `1.15.2` | 8 | [mcontain-v4-1.15.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-1.15.x.jar) |
-| `1.16.x` | `1.16.5` | 8 | [mcontain-v4-1.16.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-1.16.x.jar) |
-| `1.17.x` | `1.17.1` | 16 | [mcontain-v4-1.17.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-1.17.x.jar) |
-| `1.18.x` | `1.18.2` | 16 | [mcontain-v4-1.18.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-1.18.x.jar) |
-| `1.19.x` | `1.19.4` | 17 | [mcontain-v4-1.19.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-1.19.x.jar) |
-| `1.20.x` | `1.20.6` | 21 | [mcontain-v4-1.20.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-1.20.x.jar) |
-| `1.21.x` | `1.21.11` | 21 | [mcontain-v4-1.21.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-1.21.x.jar) |
 | `26.1.x` | `26.1.2` | 25 | [mcontain-v4-26.1.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-26.1.x.jar) |
 | `26.2.x` | `26.2` | 25 | [mcontain-v4-26.2.x](https://github.com/komixkat/mcontain/releases/latest/download/mcontain-v4-26.2.x.jar) |
 

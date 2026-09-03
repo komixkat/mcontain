@@ -1,19 +1,6 @@
 plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}" apply false
-	id 'fabric-loom' version "${loom_version}" apply false
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
-}
-
-def nonObfuscated = project.minecraft_version.startsWith('26')
-apply plugin: nonObfuscated ? 'net.fabricmc.fabric-loom' : 'fabric-loom'
-
-if (!nonObfuscated) {
-	loom {
-		mixin {
-			useLegacyMixinAp = true
-			defaultRefmapName = 'mcontain-refmap.json'
-		}
-	}
 }
 
 version = project.mod_version
@@ -29,12 +16,7 @@ repositories {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	if (!nonObfuscated) {
-		mappings loom.officialMojangMappings()
-		modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	} else {
-		implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	}
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 }
 
 processResources {
@@ -48,12 +30,12 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = Integer.parseInt(project.findProperty('java_release') ?: '21')
+	it.options.release = Integer.parseInt(project.findProperty('java_release') ?: '25')
 }
 
 java {
-	sourceCompatibility = JavaVersion.toVersion(project.findProperty('java_release') ?: '21')
-	targetCompatibility = JavaVersion.toVersion(project.findProperty('java_release') ?: '21')
+	sourceCompatibility = JavaVersion.toVersion(project.findProperty('java_release') ?: '25')
+	targetCompatibility = JavaVersion.toVersion(project.findProperty('java_release') ?: '25')
 	withSourcesJar()
 }
 
