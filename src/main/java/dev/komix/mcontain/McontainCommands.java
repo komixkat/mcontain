@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 
 import java.util.Locale;
 import java.util.Map;
@@ -25,7 +26,7 @@ public final class McontainCommands {
 		McontainMod.log("dispatcher found: " + dispatcher.getClass().getName());
 
 		LiteralArgumentBuilder<CommandSourceStack> root = LiteralArgumentBuilder.<CommandSourceStack>literal("mcontain")
-				.requires(src -> Compat.hasPermission(src));
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
 
 		root.then(LiteralArgumentBuilder.<CommandSourceStack>literal("gate")
 				.then(LiteralArgumentBuilder.<CommandSourceStack>literal("set")

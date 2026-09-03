@@ -362,11 +362,6 @@ public final class Compat {
 		return player;
 	}
 
-	public static boolean hasPermission(Object source) {
-		Boolean ok = (Boolean) invoke(source, "hasPermission", 2);
-		return Boolean.TRUE.equals(ok);
-	}
-
 	public static boolean teleportPlayer(Object player, Object level, double x, double y, double z) {
 		if (player == null) {
 			return false;
